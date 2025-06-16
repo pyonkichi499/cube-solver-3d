@@ -1,42 +1,82 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+.App {
   text-align: center;
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+h1 {
+  color: #333;
+  margin-bottom: 2rem;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.cube-container {
+  background-color: #f0f0f0;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 2rem;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+.controls {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-bottom: 2rem;
 }
 
-.card {
-  padding: 2em;
+.controls button {
+  background-color: #4CAF50;
+  border: none;
+  color: white;
+  padding: 10px 24px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.3s;
 }
 
-.read-the-docs {
-  color: #888;
+.controls button:hover:not(:disabled) {
+  background-color: #45a049;
+}
+
+.controls button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.error {
+  color: #f44336;
+  margin: 1rem 0;
+  padding: 1rem;
+  border: 1px solid #f44336;
+  border-radius: 4px;
+  background-color: #ffebee;
+}
+
+.solution {
+  margin: 1rem 0;
+  padding: 1rem;
+  border: 1px solid #4CAF50;
+  border-radius: 4px;
+  background-color: #e8f5e9;
+}
+
+.solution h3 {
+  margin-top: 0;
+  color: #2e7d32;
+}
+
+.solution p {
+  font-family: monospace;
+  font-size: 1.1rem;
+  word-wrap: break-word;
+}
+
+.loading {
+  color: #666;
+  font-style: italic;
 }
