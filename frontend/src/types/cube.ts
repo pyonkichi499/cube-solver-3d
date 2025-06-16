@@ -6,6 +6,8 @@ export interface CubeState {
   // 3x3x3 cube has 54 stickers (9 per face)
   // Stored as a flat array in the order: UUUUUUUUURRRRRRRRRFFFFFFFFFDDDDDDDDDLLLLLLLLLBBBBBBBBB
   stickers: Color[];
+  // デバッグ用：各ステッカーの元の位置を追跡（0-53の番号）
+  stickerIds?: number[];
 }
 
 export interface CubeConfig {

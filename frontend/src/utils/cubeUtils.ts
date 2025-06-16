@@ -1,4 +1,5 @@
 import * as CubeTypes from '../types/cube';
+import { getMoveFunction } from './cubeRotations';
 
 type CubeState = CubeTypes.CubeState;
 type Color = CubeTypes.Color;
@@ -6,18 +7,20 @@ type Face = CubeTypes.Face;
 
 // Create a solved cube state
 export const createSolvedCube = (): CubeState => {
-  const faces: Face[] = ['U', 'R', 'F', 'D', 'L', 'B'];
+  const faces: Face[] = ['U', 'F', 'L', 'B', 'R', 'D'];
   const stickers: Color[] = [];
+  const stickerIds: number[] = [];
   
   // Each face has 9 stickers in a 3x3 grid
-  faces.forEach(face => {
+  faces.forEach((face, faceIndex) => {
     const color = CubeTypes.faceToColor(face);
     for (let i = 0; i < 9; i++) {
       stickers.push(color);
+      stickerIds.push(faceIndex * 9 + i);
     }
   });
   
-  return { stickers };
+  return { stickers, stickerIds };
 };
 
 // Convert cube state to API format (string of face letters)
@@ -38,15 +41,20 @@ export const cubeStateToString = (cubeState: CubeState): string => {
 // Parse API format string to cube state
 export const stringToCubeState = (stateString: string): CubeState => {
   const stickers: Color[] = stateString.split('').map(face => CubeTypes.faceToColor(face));
-  return { stickers };
+  const stickerIds = Array.from({ length: stickers.length }, (_, i) => i);
+  return { stickers, stickerIds };
 };
 
-// Apply a move to the cube state (simplified version)
+// Apply a move to the cube state
 export const applyMove = (cubeState: CubeState, move: string): CubeState => {
-  // This is a placeholder - implementing cube rotations is complex
-  // For now, return the same state
+  const moveFunction = getMoveFunction(move);
+  if (!moveFunction) {
+    console.warn(`Unknown move: ${move}`);
+    return cubeState;
+  }
+  
   console.log(`Applying move: ${move}`);
-  return { ...cubeState };
+  return moveFunction(cubeState);
 };
 
 // Apply multiple moves

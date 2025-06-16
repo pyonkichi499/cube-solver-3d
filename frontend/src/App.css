@@ -48,6 +48,14 @@ h1 {
   cursor: not-allowed;
 }
 
+.controls button.active {
+  background-color: #FF9800;
+}
+
+.controls button.active:hover:not(:disabled) {
+  background-color: #F57C00;
+}
+
 .error {
   color: #f44336;
   margin: 1rem 0;
@@ -79,4 +87,206 @@ h1 {
 .loading {
   color: #666;
   font-style: italic;
+}
+
+.test-controls {
+  margin: 2rem 0;
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+}
+
+.test-controls h3 {
+  margin-top: 0;
+  color: #333;
+}
+
+.test-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.test-button {
+  border: none;
+  color: white;
+  padding: 8px 16px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 14px;
+  margin: 2px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+  font-family: monospace;
+  font-weight: bold;
+}
+
+.test-button.basic-move {
+  background-color: #4CAF50;
+}
+
+.test-button.basic-move:hover:not(:disabled) {
+  background-color: #45a049;
+}
+
+.test-button.complex-move {
+  background-color: #FF9800;
+}
+
+.test-button.complex-move:hover:not(:disabled) {
+  background-color: #F57C00;
+}
+
+.test-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.scramble-info {
+  margin: 1rem 0;
+  padding: 1rem;
+  border: 1px solid #2196F3;
+  border-radius: 4px;
+  background-color: #e3f2fd;
+}
+
+.scramble-info h3 {
+  margin-top: 0;
+  color: #1565C0;
+}
+
+.scramble-sequence {
+  font-family: monospace;
+  font-size: 1.1rem;
+  word-wrap: break-word;
+  font-weight: bold;
+  margin: 0.5rem 0;
+}
+
+.moves-display {
+  text-align: left;
+}
+
+.simplified-moves {
+  margin-bottom: 1rem;
+}
+
+.scramble-sequence.simplified {
+  background-color: rgba(33, 150, 243, 0.1);
+  padding: 0.5rem;
+  border-radius: 4px;
+  border: 1px solid rgba(33, 150, 243, 0.3);
+  font-size: 1.2rem;
+  color: #1565C0;
+}
+
+.scramble-sequence.original {
+  background-color: rgba(158, 158, 158, 0.1);
+  padding: 0.5rem;
+  border-radius: 4px;
+  font-size: 1rem;
+  color: #666;
+}
+
+.detailed-moves {
+  margin-top: 1rem;
+}
+
+.detailed-moves summary {
+  cursor: pointer;
+  font-weight: bold;
+  color: #1565C0;
+  margin-bottom: 0.5rem;
+}
+
+.detailed-moves summary:hover {
+  color: #0D47A1;
+}
+
+.last-group-info {
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  background-color: rgba(255, 152, 0, 0.1);
+  border-radius: 4px;
+  border-left: 3px solid #FF9800;
+}
+
+.highlight {
+  background-color: rgba(255, 152, 0, 0.3);
+  padding: 0.2rem 0.4rem;
+  border-radius: 3px;
+  font-weight: bold;
+}
+
+.scramble-input-container {
+  margin: 2rem 0;
+  padding: 1.5rem;
+  border: 1px solid #2196F3;
+  border-radius: 8px;
+  background-color: #e3f2fd;
+}
+
+.scramble-input-container h3 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: #1565C0;
+}
+
+.scramble-input-row {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.scramble-input {
+  flex: 1;
+  padding: 10px;
+  font-size: 16px;
+  border: 2px solid #2196F3;
+  border-radius: 4px;
+  font-family: monospace;
+}
+
+.scramble-input:focus {
+  outline: none;
+  border-color: #1976D2;
+  box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
+}
+
+.scramble-input:disabled {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
+}
+
+.scramble-input-row button {
+  background-color: #2196F3;
+  border: none;
+  color: white;
+  padding: 10px 24px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+.scramble-input-row button:hover:not(:disabled) {
+  background-color: #1976D2;
+}
+
+.scramble-input-row button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.scramble-help {
+  color: #666;
+  font-size: 0.9rem;
 }

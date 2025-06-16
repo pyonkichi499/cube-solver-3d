@@ -1,9 +1,19 @@
 import { useState } from 'react';
 import './App.css';
 import { Cube3D } from './components/Cube3D';
+import { DebugPanel } from './components/DebugPanel';
+import { RotationTracker } from './components/RotationTracker';
 import * as CubeTypes from './types/cube';
 import { createSolvedCube, cubeStateToString, applyMoves, stringToCubeState } from './utils/cubeUtils';
 import { cubeApi } from './api/cubeApi';
+import { getSimplifiedMovesDisplay, getLastMoveGroup } from './utils/moveSimplifier';
+
+// テスト関数を読み込み（ブラウザコンソールで使用可能にする）
+import './utils/cubeTests';
+import './utils/cubeDebug';
+import './utils/debugRotations';
+import './utils/debugURotation';
+import './utils/debugFaceOrder';
 
 type CubeState = CubeTypes.CubeState;
 type Color = CubeTypes.Color;
@@ -13,32 +23,45 @@ function App() {
   const [solution, setSolution] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [lastScramble, setLastScramble] = useState<string[]>([]);
+  const [debugMode, setDebugMode] = useState(false);
+  const [scrambleInput, setScrambleInput] = useState<string>('');
 
   const handleScramble = async () => {
     try {
       setIsLoading(true);
       setError(null);
       
-      // Temporary mock scramble while backend is not running
-      const mockScramble = ["R", "U", "R'", "U'", "F", "D", "F'", "D'"];
-      
-      // For now, just randomize the colors since applyMoves is not implemented
-      const colors: Color[] = ['white', 'yellow', 'orange', 'red', 'green', 'blue'];
-      const scrambledStickers: Color[] = [];
-      
-      // Create a somewhat scrambled state (not a real scramble, just for visualization)
-      for (let i = 0; i < 54; i++) {
-        const faceIndex = Math.floor(i / 9);
-        // Keep some structure but add randomness
-        if (Math.random() > 0.3) {
-          scrambledStickers.push(colors[faceIndex]);
-        } else {
-          scrambledStickers.push(colors[Math.floor(Math.random() * 6)]);
+      // Generate a random scramble using actual cube rotations
+      const generateScramble = (): string[] => {
+        const faces = ['R', 'U', 'F'];
+        const modifiers = ['', "'", '2'];
+        const scramble: string[] = [];
+        let lastFace = '';
+        
+        for (let i = 0; i < 20; i++) {
+          // Avoid same face twice in a row
+          let face;
+          do {
+            face = faces[Math.floor(Math.random() * faces.length)];
+          } while (face === lastFace);
+          
+          const modifier = modifiers[Math.floor(Math.random() * modifiers.length)];
+          scramble.push(face + modifier);
+          lastFace = face;
         }
-      }
+        
+        return scramble;
+      };
       
-      setCubeState({ stickers: scrambledStickers });
-      setSolution([]);
+      const scrambleMoves = generateScramble();
+      console.log('Scramble:', scrambleMoves.join(' '));
+      
+      // Apply scramble moves to solved cube
+      const scrambledState = applyMoves(createSolvedCube(), scrambleMoves);
+      setCubeState(scrambledState);
+      setLastScramble(scrambleMoves);
+      setSolution([]); // Clear solution
     } catch (err) {
       setError('Failed to generate scramble');
       console.error(err);
@@ -67,7 +90,101 @@ function App() {
   const handleReset = () => {
     setCubeState(createSolvedCube());
     setSolution([]);
+    setLastScramble([]);
     setError(null);
+  };
+
+  // テスト用：指定した手順を適用
+  const applyTestScramble = (moves: string[]) => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      
+      console.log('Applying test moves:', moves.join(' '));
+      // 現在の状態に手順を追加適用
+      const newState = applyMoves(cubeState, moves);
+      setCubeState(newState);
+      
+      // 手順を追記
+      const combinedMoves = [...lastScramble, ...moves];
+      setLastScramble(combinedMoves);
+      setSolution([]);
+    } catch (err) {
+      setError('Failed to apply test moves');
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // 基本回転
+  const basicMoves = [
+    { name: "R", moves: ["R"] },
+    { name: "R'", moves: ["R'"] },
+    { name: "R2", moves: ["R2"] },
+    { name: "U", moves: ["U"] },
+    { name: "U'", moves: ["U'"] },
+    { name: "U2", moves: ["U2"] },
+    { name: "F", moves: ["F"] },
+    { name: "F'", moves: ["F'"] },
+    { name: "F2", moves: ["F2"] }
+  ];
+
+  // 複合手順
+  const complexMoves = [
+    {
+      name: "Sexy Move",
+      moves: ["R", "U", "R'", "U'"]
+    },
+    {
+      name: "Sledgehammer", 
+      moves: ["R'", "F", "R", "F'"]
+    },
+    {
+      name: "T-Perm",
+      moves: ["R", "U", "R'", "U'", "R'", "F", "R2", "U'", "R'", "U'", "R", "U", "R'", "F'"]
+    },
+    {
+      name: "Y-Perm",
+      moves: ["F", "R", "U'", "R'", "U'", "R", "U", "R'", "F'", "R", "U", "R'", "U'", "R'", "F", "R", "F'"]
+    }
+  ];
+
+  // スクランブル文字列を適用
+  const applyScrambleString = () => {
+    try {
+      setError(null);
+      
+      // 入力を解析
+      const moves = scrambleInput.trim().split(/\s+/).filter(move => move.length > 0);
+      
+      if (moves.length === 0) {
+        setError('スクランブルを入力してください');
+        return;
+      }
+      
+      // 有効な手順かチェック
+      const validMoves = ["R", "R'", "R2", "U", "U'", "U2", "F", "F'", "F2", 
+                         "D", "D'", "D2", "L", "L'", "L2", "B", "B'", "B2"];
+      const invalidMoves = moves.filter(move => !validMoves.includes(move));
+      
+      if (invalidMoves.length > 0) {
+        setError(`無効な手順: ${invalidMoves.join(', ')}`);
+        return;
+      }
+      
+      console.log('Applying scramble:', moves.join(' '));
+      
+      // 完成状態から適用
+      const scrambledState = applyMoves(createSolvedCube(), moves);
+      setCubeState(scrambledState);
+      setLastScramble(moves);
+      setSolution([]);
+      setScrambleInput(''); // 入力をクリア
+    } catch (err) {
+      setError('スクランブルの適用に失敗しました');
+      console.error(err);
+    }
   };
 
   return (
@@ -75,19 +192,82 @@ function App() {
       <h1>3D Cube Solver</h1>
       
       <div className="cube-container">
-        <Cube3D cubeState={cubeState} />
+        <Cube3D cubeState={cubeState} debugMode={debugMode} />
       </div>
 
       <div className="controls">
         <button onClick={handleReset} disabled={isLoading}>
-          Reset
+          Reset (完成状態)
         </button>
         <button onClick={handleScramble} disabled={isLoading}>
-          Scramble
+          Random Scramble
         </button>
         <button onClick={handleSolve} disabled={isLoading}>
           Solve
         </button>
+        <button onClick={() => setDebugMode(!debugMode)} className={debugMode ? 'active' : ''}>
+          {debugMode ? 'デバッグモードOFF' : 'デバッグモードON'}
+        </button>
+      </div>
+
+      <div className="scramble-input-container">
+        <h3>スクランブル入力</h3>
+        <div className="scramble-input-row">
+          <input
+            type="text"
+            value={scrambleInput}
+            onChange={(e) => setScrambleInput(e.target.value)}
+            onKeyPress={(e) => {
+              if (e.key === 'Enter') {
+                applyScrambleString();
+              }
+            }}
+            placeholder="例: R U R' U' R U2 R'"
+            className="scramble-input"
+            disabled={isLoading}
+          />
+          <button onClick={applyScrambleString} disabled={isLoading || !scrambleInput.trim()}>
+            適用
+          </button>
+        </div>
+        <div className="scramble-help">
+          <small>
+            使用可能: R, L, U, D, F, B (各面の時計回り)、
+            ' (反時計回り)、2 (180度回転)
+          </small>
+        </div>
+      </div>
+
+      <div className="test-controls">
+        <h3>基本回転 (現在の状態に追加適用)</h3>
+        <div className="test-buttons">
+          {basicMoves.map((move, index) => (
+            <button
+              key={index}
+              onClick={() => applyTestScramble(move.moves)}
+              disabled={isLoading}
+              className="test-button basic-move"
+            >
+              {move.name}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="test-controls">
+        <h3>複合手順</h3>
+        <div className="test-buttons">
+          {complexMoves.map((move, index) => (
+            <button
+              key={index}
+              onClick={() => applyTestScramble(move.moves)}
+              disabled={isLoading}
+              className="test-button complex-move"
+            >
+              {move.name}
+            </button>
+          ))}
+        </div>
       </div>
 
       {error && (
@@ -95,6 +275,42 @@ function App() {
           {error}
         </div>
       )}
+
+      {lastScramble.length > 0 && (() => {
+        const { original, simplified, count } = getSimplifiedMovesDisplay(lastScramble);
+        const lastGroup = getLastMoveGroup(lastScramble);
+        
+        return (
+          <div className="scramble-info">
+            <h3>適用済み手順:</h3>
+            
+            {/* 統合表示 */}
+            <div className="moves-display">
+              <div className="simplified-moves">
+                <strong>統合表示 ({count} moves):</strong>
+                <p className="scramble-sequence simplified">{simplified || '(なし)'}</p>
+              </div>
+              
+              {/* 詳細表示 */}
+              <details className="detailed-moves">
+                <summary>詳細表示 ({lastScramble.length} moves)</summary>
+                <div className="original-moves">
+                  <p className="scramble-sequence original">{original}</p>
+                  
+                  {lastGroup.length > 1 && (
+                    <div className="last-group-info">
+                      <small>
+                        最後のグループ: <span className="highlight">{lastGroup.join(' ')}</span>
+                        {lastGroup.length > 1 && ` → ${getSimplifiedMovesDisplay(lastGroup).simplified}`}
+                      </small>
+                    </div>
+                  )}
+                </div>
+              </details>
+            </div>
+          </div>
+        );
+      })()}
 
       {solution.length > 0 && (
         <div className="solution">
@@ -104,6 +320,13 @@ function App() {
       )}
 
       {isLoading && <div className="loading">Loading...</div>}
+      
+      {debugMode && (
+        <>
+          <RotationTracker cubeState={cubeState} moves={lastScramble} />
+          <DebugPanel cubeState={cubeState} />
+        </>
+      )}
     </div>
   );
 }
