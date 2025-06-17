@@ -395,6 +395,360 @@ export const rotateF = (cubeState: CubeState): CubeState => {
 };
 
 /**
+ * L回転 (左面を時計回りに90度回転)
+ * 左面を外側から見て時計回り
+ * 
+ * 影響を受ける面:
+ * - L面: 時計回りに回転
+ * - U面の左列 → F面の左列
+ * - F面の左列 → D面の左列
+ * - D面の左列 → B面の右列 (逆順)
+ * - B面の右列 → U面の左列 (逆順)
+ */
+export const rotateL = (cubeState: CubeState): CubeState => {
+  const newStickers = [...cubeState.stickers];
+  const newStickerIds = cubeState.stickerIds ? [...cubeState.stickerIds] : undefined;
+  
+  // L面を時計回りに回転
+  const lFaceStart = getGlobalIndex('L', 0);
+  const lFace = newStickers.slice(lFaceStart, lFaceStart + 9);
+  const lFaceIds = newStickerIds ? newStickerIds.slice(lFaceStart, lFaceStart + 9) : undefined;
+  
+  const { rotatedFace, rotatedIds } = rotateFaceWithIds(lFace, lFaceIds);
+  
+  for (let i = 0; i < 9; i++) {
+    newStickers[lFaceStart + i] = rotatedFace[i];
+    if (newStickerIds && rotatedIds) {
+      newStickerIds[lFaceStart + i] = rotatedIds[i];
+    }
+  }
+  
+  // 隣接面のステッカー移動
+  // 循環移動のため、一時保存が必要
+  const u0 = newStickers[getGlobalIndex('U', 0)];
+  const u3 = newStickers[getGlobalIndex('U', 3)];
+  const u6 = newStickers[getGlobalIndex('U', 6)];
+  
+  const f0 = newStickers[getGlobalIndex('F', 0)];
+  const f3 = newStickers[getGlobalIndex('F', 3)];
+  const f6 = newStickers[getGlobalIndex('F', 6)];
+  
+  const d0 = newStickers[getGlobalIndex('D', 0)];
+  const d3 = newStickers[getGlobalIndex('D', 3)];
+  const d6 = newStickers[getGlobalIndex('D', 6)];
+  
+  const b2 = newStickers[getGlobalIndex('B', 2)];
+  const b5 = newStickers[getGlobalIndex('B', 5)];
+  const b8 = newStickers[getGlobalIndex('B', 8)];
+  
+  // IDの一時保存
+  let u0Id: number | undefined, u3Id: number | undefined, u6Id: number | undefined;
+  let f0Id: number | undefined, f3Id: number | undefined, f6Id: number | undefined;
+  let d0Id: number | undefined, d3Id: number | undefined, d6Id: number | undefined;
+  let b2Id: number | undefined, b5Id: number | undefined, b8Id: number | undefined;
+  
+  if (newStickerIds) {
+    u0Id = newStickerIds[getGlobalIndex('U', 0)];
+    u3Id = newStickerIds[getGlobalIndex('U', 3)];
+    u6Id = newStickerIds[getGlobalIndex('U', 6)];
+    
+    f0Id = newStickerIds[getGlobalIndex('F', 0)];
+    f3Id = newStickerIds[getGlobalIndex('F', 3)];
+    f6Id = newStickerIds[getGlobalIndex('F', 6)];
+    
+    d0Id = newStickerIds[getGlobalIndex('D', 0)];
+    d3Id = newStickerIds[getGlobalIndex('D', 3)];
+    d6Id = newStickerIds[getGlobalIndex('D', 6)];
+    
+    b2Id = newStickerIds[getGlobalIndex('B', 2)];
+    b5Id = newStickerIds[getGlobalIndex('B', 5)];
+    b8Id = newStickerIds[getGlobalIndex('B', 8)];
+  }
+  
+  // 循環移動: U → F → D → B → U
+  // U面の左列 → F面の左列
+  newStickers[getGlobalIndex('F', 0)] = u0;
+  newStickers[getGlobalIndex('F', 3)] = u3;
+  newStickers[getGlobalIndex('F', 6)] = u6;
+  
+  // F面の左列 → D面の左列
+  newStickers[getGlobalIndex('D', 0)] = f0;
+  newStickers[getGlobalIndex('D', 3)] = f3;
+  newStickers[getGlobalIndex('D', 6)] = f6;
+  
+  // D面の左列 → B面の右列 (逆順)
+  newStickers[getGlobalIndex('B', 8)] = d0;
+  newStickers[getGlobalIndex('B', 5)] = d3;
+  newStickers[getGlobalIndex('B', 2)] = d6;
+  
+  // B面の右列 → U面の左列 (逆順)
+  newStickers[getGlobalIndex('U', 0)] = b8;
+  newStickers[getGlobalIndex('U', 3)] = b5;
+  newStickers[getGlobalIndex('U', 6)] = b2;
+  
+  // IDの循環移動
+  if (newStickerIds) {
+    // U面の左列 → F面の左列
+    newStickerIds[getGlobalIndex('F', 0)] = u0Id!;
+    newStickerIds[getGlobalIndex('F', 3)] = u3Id!;
+    newStickerIds[getGlobalIndex('F', 6)] = u6Id!;
+    
+    // F面の左列 → D面の左列
+    newStickerIds[getGlobalIndex('D', 0)] = f0Id!;
+    newStickerIds[getGlobalIndex('D', 3)] = f3Id!;
+    newStickerIds[getGlobalIndex('D', 6)] = f6Id!;
+    
+    // D面の左列 → B面の右列 (逆順)
+    newStickerIds[getGlobalIndex('B', 8)] = d0Id!;
+    newStickerIds[getGlobalIndex('B', 5)] = d3Id!;
+    newStickerIds[getGlobalIndex('B', 2)] = d6Id!;
+    
+    // B面の右列 → U面の左列 (逆順)
+    newStickerIds[getGlobalIndex('U', 0)] = b8Id!;
+    newStickerIds[getGlobalIndex('U', 3)] = b5Id!;
+    newStickerIds[getGlobalIndex('U', 6)] = b2Id!;
+  }
+  
+  return { stickers: newStickers, stickerIds: newStickerIds };
+};
+
+/**
+ * D回転 (下面を時計回りに90度回転)
+ * 下面を下から見て時計回り
+ * 
+ * 影響を受ける面:
+ * - D面: 時計回りに回転
+ * - F面の下段 → R面の下段
+ * - R面の下段 → B面の下段
+ * - B面の下段 → L面の下段
+ * - L面の下段 → F面の下段
+ */
+export const rotateD = (cubeState: CubeState): CubeState => {
+  const newStickers = [...cubeState.stickers];
+  const newStickerIds = cubeState.stickerIds ? [...cubeState.stickerIds] : undefined;
+  
+  // D面を時計回りに回転
+  const dFaceStart = getGlobalIndex('D', 0);
+  const dFace = newStickers.slice(dFaceStart, dFaceStart + 9);
+  const dFaceIds = newStickerIds ? newStickerIds.slice(dFaceStart, dFaceStart + 9) : undefined;
+  
+  const { rotatedFace, rotatedIds } = rotateFaceWithIds(dFace, dFaceIds);
+  
+  for (let i = 0; i < 9; i++) {
+    newStickers[dFaceStart + i] = rotatedFace[i];
+    if (newStickerIds && rotatedIds) {
+      newStickerIds[dFaceStart + i] = rotatedIds[i];
+    }
+  }
+  
+  // 隣接面のステッカー移動
+  // 循環移動のため、一時保存が必要
+  const f6 = newStickers[getGlobalIndex('F', 6)];
+  const f7 = newStickers[getGlobalIndex('F', 7)];
+  const f8 = newStickers[getGlobalIndex('F', 8)];
+  
+  const r6 = newStickers[getGlobalIndex('R', 6)];
+  const r7 = newStickers[getGlobalIndex('R', 7)];
+  const r8 = newStickers[getGlobalIndex('R', 8)];
+  
+  const b6 = newStickers[getGlobalIndex('B', 6)];
+  const b7 = newStickers[getGlobalIndex('B', 7)];
+  const b8 = newStickers[getGlobalIndex('B', 8)];
+  
+  const l6 = newStickers[getGlobalIndex('L', 6)];
+  const l7 = newStickers[getGlobalIndex('L', 7)];
+  const l8 = newStickers[getGlobalIndex('L', 8)];
+  
+  // IDの一時保存
+  let f6Id: number | undefined, f7Id: number | undefined, f8Id: number | undefined;
+  let r6Id: number | undefined, r7Id: number | undefined, r8Id: number | undefined;
+  let b6Id: number | undefined, b7Id: number | undefined, b8Id: number | undefined;
+  let l6Id: number | undefined, l7Id: number | undefined, l8Id: number | undefined;
+  
+  if (newStickerIds) {
+    f6Id = newStickerIds[getGlobalIndex('F', 6)];
+    f7Id = newStickerIds[getGlobalIndex('F', 7)];
+    f8Id = newStickerIds[getGlobalIndex('F', 8)];
+    
+    r6Id = newStickerIds[getGlobalIndex('R', 6)];
+    r7Id = newStickerIds[getGlobalIndex('R', 7)];
+    r8Id = newStickerIds[getGlobalIndex('R', 8)];
+    
+    b6Id = newStickerIds[getGlobalIndex('B', 6)];
+    b7Id = newStickerIds[getGlobalIndex('B', 7)];
+    b8Id = newStickerIds[getGlobalIndex('B', 8)];
+    
+    l6Id = newStickerIds[getGlobalIndex('L', 6)];
+    l7Id = newStickerIds[getGlobalIndex('L', 7)];
+    l8Id = newStickerIds[getGlobalIndex('L', 8)];
+  }
+  
+  // 循環移動: F → R → B → L → F (時計回り)
+  // F面の下段 → R面の下段
+  newStickers[getGlobalIndex('R', 6)] = f6;
+  newStickers[getGlobalIndex('R', 7)] = f7;
+  newStickers[getGlobalIndex('R', 8)] = f8;
+  
+  // R面の下段 → B面の下段
+  newStickers[getGlobalIndex('B', 6)] = r6;
+  newStickers[getGlobalIndex('B', 7)] = r7;
+  newStickers[getGlobalIndex('B', 8)] = r8;
+  
+  // B面の下段 → L面の下段
+  newStickers[getGlobalIndex('L', 6)] = b6;
+  newStickers[getGlobalIndex('L', 7)] = b7;
+  newStickers[getGlobalIndex('L', 8)] = b8;
+  
+  // L面の下段 → F面の下段
+  newStickers[getGlobalIndex('F', 6)] = l6;
+  newStickers[getGlobalIndex('F', 7)] = l7;
+  newStickers[getGlobalIndex('F', 8)] = l8;
+  
+  // IDの循環移動
+  if (newStickerIds) {
+    // F面の下段 → R面の下段
+    newStickerIds[getGlobalIndex('R', 6)] = f6Id!;
+    newStickerIds[getGlobalIndex('R', 7)] = f7Id!;
+    newStickerIds[getGlobalIndex('R', 8)] = f8Id!;
+    
+    // R面の下段 → B面の下段
+    newStickerIds[getGlobalIndex('B', 6)] = r6Id!;
+    newStickerIds[getGlobalIndex('B', 7)] = r7Id!;
+    newStickerIds[getGlobalIndex('B', 8)] = r8Id!;
+    
+    // B面の下段 → L面の下段
+    newStickerIds[getGlobalIndex('L', 6)] = b6Id!;
+    newStickerIds[getGlobalIndex('L', 7)] = b7Id!;
+    newStickerIds[getGlobalIndex('L', 8)] = b8Id!;
+    
+    // L面の下段 → F面の下段
+    newStickerIds[getGlobalIndex('F', 6)] = l6Id!;
+    newStickerIds[getGlobalIndex('F', 7)] = l7Id!;
+    newStickerIds[getGlobalIndex('F', 8)] = l8Id!;
+  }
+  
+  return { stickers: newStickers, stickerIds: newStickerIds };
+};
+
+/**
+ * B回転 (背面を時計回りに90度回転)
+ * 背面を背後から見て時計回り
+ * 
+ * 影響を受ける面:
+ * - B面: 時計回りに回転
+ * - U面の上段 → L面の左列 (逆順)
+ * - L面の左列 → D面の下段
+ * - D面の下段 → R面の右列 (逆順)
+ * - R面の右列 → U面の上段
+ */
+export const rotateB = (cubeState: CubeState): CubeState => {
+  const newStickers = [...cubeState.stickers];
+  const newStickerIds = cubeState.stickerIds ? [...cubeState.stickerIds] : undefined;
+  
+  // B面を時計回りに回転
+  const bFaceStart = getGlobalIndex('B', 0);
+  const bFace = newStickers.slice(bFaceStart, bFaceStart + 9);
+  const bFaceIds = newStickerIds ? newStickerIds.slice(bFaceStart, bFaceStart + 9) : undefined;
+  
+  const { rotatedFace, rotatedIds } = rotateFaceWithIds(bFace, bFaceIds);
+  
+  for (let i = 0; i < 9; i++) {
+    newStickers[bFaceStart + i] = rotatedFace[i];
+    if (newStickerIds && rotatedIds) {
+      newStickerIds[bFaceStart + i] = rotatedIds[i];
+    }
+  }
+  
+  // 隣接面のステッカー移動
+  // 循環移動のため、一時保存が必要
+  const u0 = newStickers[getGlobalIndex('U', 0)];
+  const u1 = newStickers[getGlobalIndex('U', 1)];
+  const u2 = newStickers[getGlobalIndex('U', 2)];
+  
+  const l0 = newStickers[getGlobalIndex('L', 0)];
+  const l3 = newStickers[getGlobalIndex('L', 3)];
+  const l6 = newStickers[getGlobalIndex('L', 6)];
+  
+  const d6 = newStickers[getGlobalIndex('D', 6)];
+  const d7 = newStickers[getGlobalIndex('D', 7)];
+  const d8 = newStickers[getGlobalIndex('D', 8)];
+  
+  const r2 = newStickers[getGlobalIndex('R', 2)];
+  const r5 = newStickers[getGlobalIndex('R', 5)];
+  const r8 = newStickers[getGlobalIndex('R', 8)];
+  
+  // IDの一時保存
+  let u0Id: number | undefined, u1Id: number | undefined, u2Id: number | undefined;
+  let l0Id: number | undefined, l3Id: number | undefined, l6Id: number | undefined;
+  let d6Id: number | undefined, d7Id: number | undefined, d8Id: number | undefined;
+  let r2Id: number | undefined, r5Id: number | undefined, r8Id: number | undefined;
+  
+  if (newStickerIds) {
+    u0Id = newStickerIds[getGlobalIndex('U', 0)];
+    u1Id = newStickerIds[getGlobalIndex('U', 1)];
+    u2Id = newStickerIds[getGlobalIndex('U', 2)];
+    
+    l0Id = newStickerIds[getGlobalIndex('L', 0)];
+    l3Id = newStickerIds[getGlobalIndex('L', 3)];
+    l6Id = newStickerIds[getGlobalIndex('L', 6)];
+    
+    d6Id = newStickerIds[getGlobalIndex('D', 6)];
+    d7Id = newStickerIds[getGlobalIndex('D', 7)];
+    d8Id = newStickerIds[getGlobalIndex('D', 8)];
+    
+    r2Id = newStickerIds[getGlobalIndex('R', 2)];
+    r5Id = newStickerIds[getGlobalIndex('R', 5)];
+    r8Id = newStickerIds[getGlobalIndex('R', 8)];
+  }
+  
+  // 循環移動: U → L → D → R → U (時計回り)
+  // U面の上段 → L面の左列 (逆順)
+  newStickers[getGlobalIndex('L', 6)] = u0;
+  newStickers[getGlobalIndex('L', 3)] = u1;
+  newStickers[getGlobalIndex('L', 0)] = u2;
+  
+  // L面の左列 → D面の下段
+  newStickers[getGlobalIndex('D', 6)] = l0;
+  newStickers[getGlobalIndex('D', 7)] = l3;
+  newStickers[getGlobalIndex('D', 8)] = l6;
+  
+  // D面の下段 → R面の右列 (逆順)
+  newStickers[getGlobalIndex('R', 2)] = d8;
+  newStickers[getGlobalIndex('R', 5)] = d7;
+  newStickers[getGlobalIndex('R', 8)] = d6;
+  
+  // R面の右列 → U面の上段
+  newStickers[getGlobalIndex('U', 0)] = r2;
+  newStickers[getGlobalIndex('U', 1)] = r5;
+  newStickers[getGlobalIndex('U', 2)] = r8;
+  
+  // IDの循環移動
+  if (newStickerIds) {
+    // U面の上段 → L面の左列 (逆順)
+    newStickerIds[getGlobalIndex('L', 6)] = u0Id!;
+    newStickerIds[getGlobalIndex('L', 3)] = u1Id!;
+    newStickerIds[getGlobalIndex('L', 0)] = u2Id!;
+    
+    // L面の左列 → D面の下段
+    newStickerIds[getGlobalIndex('D', 6)] = l0Id!;
+    newStickerIds[getGlobalIndex('D', 7)] = l3Id!;
+    newStickerIds[getGlobalIndex('D', 8)] = l6Id!;
+    
+    // D面の下段 → R面の右列 (逆順)
+    newStickerIds[getGlobalIndex('R', 2)] = d8Id!;
+    newStickerIds[getGlobalIndex('R', 5)] = d7Id!;
+    newStickerIds[getGlobalIndex('R', 8)] = d6Id!;
+    
+    // R面の右列 → U面の上段
+    newStickerIds[getGlobalIndex('U', 0)] = r2Id!;
+    newStickerIds[getGlobalIndex('U', 1)] = r5Id!;
+    newStickerIds[getGlobalIndex('U', 2)] = r8Id!;
+  }
+  
+  return { stickers: newStickers, stickerIds: newStickerIds };
+};
+
+/**
  * 逆回転と2回転の実装
  */
 export const rotateRPrime = (cubeState: CubeState): CubeState => {
@@ -422,6 +776,30 @@ export const rotateFPrime = (cubeState: CubeState): CubeState => {
   return result;
 };
 
+export const rotateLPrime = (cubeState: CubeState): CubeState => {
+  let result = cubeState;
+  for (let i = 0; i < 3; i++) {
+    result = rotateL(result);
+  }
+  return result;
+};
+
+export const rotateDPrime = (cubeState: CubeState): CubeState => {
+  let result = cubeState;
+  for (let i = 0; i < 3; i++) {
+    result = rotateD(result);
+  }
+  return result;
+};
+
+export const rotateBPrime = (cubeState: CubeState): CubeState => {
+  let result = cubeState;
+  for (let i = 0; i < 3; i++) {
+    result = rotateB(result);
+  }
+  return result;
+};
+
 export const rotateR2 = (cubeState: CubeState): CubeState => {
   return rotateR(rotateR(cubeState));
 };
@@ -432,6 +810,18 @@ export const rotateU2 = (cubeState: CubeState): CubeState => {
 
 export const rotateF2 = (cubeState: CubeState): CubeState => {
   return rotateF(rotateF(cubeState));
+};
+
+export const rotateL2 = (cubeState: CubeState): CubeState => {
+  return rotateL(rotateL(cubeState));
+};
+
+export const rotateD2 = (cubeState: CubeState): CubeState => {
+  return rotateD(rotateD(cubeState));
+};
+
+export const rotateB2 = (cubeState: CubeState): CubeState => {
+  return rotateB(rotateB(cubeState));
 };
 
 /**
@@ -447,7 +837,16 @@ export const getMoveFunction = (move: string): ((state: CubeState) => CubeState)
     'U2': rotateU2,
     'F': rotateF,
     "F'": rotateFPrime,
-    'F2': rotateF2
+    'F2': rotateF2,
+    'L': rotateL,
+    "L'": rotateLPrime,
+    'L2': rotateL2,
+    'D': rotateD,
+    "D'": rotateDPrime,
+    'D2': rotateD2,
+    'B': rotateB,
+    "B'": rotateBPrime,
+    'B2': rotateB2
   };
   
   return moveMap[move] || null;

@@ -1,6 +1,9 @@
 import * as CubeTypes from '../types/cube';
 import { createSolvedCube } from './cubeUtils';
-import { rotateR, rotateU, rotateF, rotateRPrime, rotateUPrime, rotateFPrime, rotateR2 } from './cubeRotations';
+import { 
+  rotateR, rotateU, rotateF, rotateRPrime, rotateUPrime, rotateFPrime, rotateR2,
+  rotateL, rotateD, rotateB, rotateLPrime, rotateDPrime, rotateBPrime, rotateL2, rotateD2, rotateB2
+} from './cubeRotations';
 import { visualizeCubeState } from './cubeMapping';
 
 type CubeState = CubeTypes.CubeState;
@@ -123,7 +126,104 @@ export const visualTest = (): void => {
 };
 
 /**
+ * L, D, B面のテスト
+ */
+export const testLDBRotations = (): boolean => {
+  console.log('🧪 Testing L, D, B rotations...');
+  
+  try {
+    const originalState = JSON.stringify(createSolvedCube().stickers);
+    
+    // Test L rotation
+    let cube = createSolvedCube();
+    cube = rotateL(cube);
+    cube = rotateL(cube);
+    cube = rotateL(cube);
+    cube = rotateL(cube);
+    
+    if (JSON.stringify(cube.stickers) === originalState) {
+      console.log('✅ L4 = identity');
+    } else {
+      console.log('❌ L4 ≠ identity');
+      return false;
+    }
+    
+    // Test D rotation
+    cube = createSolvedCube();
+    cube = rotateD(cube);
+    cube = rotateD(cube);
+    cube = rotateD(cube);
+    cube = rotateD(cube);
+    
+    if (JSON.stringify(cube.stickers) === originalState) {
+      console.log('✅ D4 = identity');
+    } else {
+      console.log('❌ D4 ≠ identity');
+      return false;
+    }
+    
+    // Test B rotation
+    cube = createSolvedCube();
+    cube = rotateB(cube);
+    cube = rotateB(cube);
+    cube = rotateB(cube);
+    cube = rotateB(cube);
+    
+    if (JSON.stringify(cube.stickers) === originalState) {
+      console.log('✅ B4 = identity');
+    } else {
+      console.log('❌ B4 ≠ identity');
+      return false;
+    }
+    
+    // Test L L' = identity
+    cube = createSolvedCube();
+    cube = rotateL(cube);
+    cube = rotateLPrime(cube);
+    
+    if (JSON.stringify(cube.stickers) === originalState) {
+      console.log("✅ L L' = identity");
+    } else {
+      console.log("❌ L L' ≠ identity");
+      return false;
+    }
+    
+    // Test D D' = identity
+    cube = createSolvedCube();
+    cube = rotateD(cube);
+    cube = rotateDPrime(cube);
+    
+    if (JSON.stringify(cube.stickers) === originalState) {
+      console.log("✅ D D' = identity");
+    } else {
+      console.log("❌ D D' ≠ identity");
+      return false;
+    }
+    
+    // Test B B' = identity
+    cube = createSolvedCube();
+    cube = rotateB(cube);
+    cube = rotateBPrime(cube);
+    
+    if (JSON.stringify(cube.stickers) === originalState) {
+      console.log("✅ B B' = identity");
+    } else {
+      console.log("❌ B B' ≠ identity");
+      return false;
+    }
+    
+    console.log('🎉 All L, D, B tests passed!');
+    return true;
+    
+  } catch (error) {
+    console.error('❌ LDB test failed with error:', error);
+    return false;
+  }
+};
+
+/**
  * ブラウザのコンソールからテストを実行
  */
 (window as any).runCubeTests = runBasicTests;
 (window as any).visualCubeTest = visualTest;
+(window as any).testLDB = testLDBRotations;

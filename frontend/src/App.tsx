@@ -34,7 +34,7 @@ function App() {
       
       // Generate a random scramble using actual cube rotations
       const generateScramble = (): string[] => {
-        const faces = ['R', 'U', 'F'];
+        const faces = ['R', 'U', 'F', 'L', 'D', 'B'];
         const modifiers = ['', "'", '2'];
         const scramble: string[] = [];
         let lastFace = '';
@@ -127,7 +127,16 @@ function App() {
     { name: "U2", moves: ["U2"] },
     { name: "F", moves: ["F"] },
     { name: "F'", moves: ["F'"] },
-    { name: "F2", moves: ["F2"] }
+    { name: "F2", moves: ["F2"] },
+    { name: "L", moves: ["L"] },
+    { name: "L'", moves: ["L'"] },
+    { name: "L2", moves: ["L2"] },
+    { name: "D", moves: ["D"] },
+    { name: "D'", moves: ["D'"] },
+    { name: "D2", moves: ["D2"] },
+    { name: "B", moves: ["B"] },
+    { name: "B'", moves: ["B'"] },
+    { name: "B2", moves: ["B2"] }
   ];
 
   // 複合手順
