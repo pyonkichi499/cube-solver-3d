@@ -26,6 +26,43 @@ function App() {
   const [lastScramble, setLastScramble] = useState<string[]>([]);
   const [debugMode, setDebugMode] = useState(false);
   const [scrambleInput, setScrambleInput] = useState<string>('');
+  
+  // Undo/Redo用の履歴管理
+  const [history, setHistory] = useState<CubeState[]>([createSolvedCube()]);
+  const [historyIndex, setHistoryIndex] = useState(0);
+
+  // 新しい状態を履歴に追加
+  const addToHistory = (newState: CubeState) => {
+    // 現在のインデックス以降の履歴を削除（新しい分岐を作る）
+    const newHistory = history.slice(0, historyIndex + 1);
+    newHistory.push(newState);
+    setHistory(newHistory);
+    setHistoryIndex(newHistory.length - 1);
+    setCubeState(newState);
+  };
+
+  // Undo機能
+  const handleUndo = () => {
+    if (historyIndex > 0) {
+      const newIndex = historyIndex - 1;
+      setHistoryIndex(newIndex);
+      setCubeState(history[newIndex]);
+      
+      // 最後の手順を削除
+      if (lastScramble.length > 0) {
+        setLastScramble(lastScramble.slice(0, -1));
+      }
+    }
+  };
+
+  // Redo機能
+  const handleRedo = () => {
+    if (historyIndex < history.length - 1) {
+      const newIndex = historyIndex + 1;
+      setHistoryIndex(newIndex);
+      setCubeState(history[newIndex]);
+    }
+  };
 
   const handleScramble = async () => {
     try {
@@ -59,7 +96,7 @@ function App() {
       
       // Apply scramble moves to solved cube
       const scrambledState = applyMoves(createSolvedCube(), scrambleMoves);
-      setCubeState(scrambledState);
+      addToHistory(scrambledState);
       setLastScramble(scrambleMoves);
       setSolution([]); // Clear solution
     } catch (err) {
@@ -88,7 +125,10 @@ function App() {
   };
 
   const handleReset = () => {
-    setCubeState(createSolvedCube());
+    const solvedState = createSolvedCube();
+    setHistory([solvedState]);
+    setHistoryIndex(0);
+    setCubeState(solvedState);
     setSolution([]);
     setLastScramble([]);
     setError(null);
@@ -103,7 +143,7 @@ function App() {
       console.log('Applying test moves:', moves.join(' '));
       // 現在の状態に手順を追加適用
       const newState = applyMoves(cubeState, moves);
-      setCubeState(newState);
+      addToHistory(newState);
       
       // 手順を追記
       const combinedMoves = [...lastScramble, ...moves];
@@ -186,6 +226,8 @@ function App() {
       
       // 完成状態から適用
       const scrambledState = applyMoves(createSolvedCube(), moves);
+      setHistory([createSolvedCube(), scrambledState]);
+      setHistoryIndex(1);
       setCubeState(scrambledState);
       setLastScramble(moves);
       setSolution([]);
@@ -216,6 +258,26 @@ function App() {
         </button>
         <button onClick={() => setDebugMode(!debugMode)} className={debugMode ? 'active' : ''}>
           {debugMode ? 'デバッグモードOFF' : 'デバッグモードON'}
+        </button>
+      </div>
+
+      <div className="controls">
+        <button 
+          onClick={handleUndo} 
+          disabled={isLoading || historyIndex === 0}
+          className="undo-button"
+        >
+          ← Undo
+        </button>
+        <span className="history-info">
+          {historyIndex + 1} / {history.length}
+        </span>
+        <button 
+          onClick={handleRedo} 
+          disabled={isLoading || historyIndex === history.length - 1}
+          className="redo-button"
+        >
+          Redo →
         </button>
       </div>
 

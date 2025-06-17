@@ -56,6 +56,21 @@ h1 {
   background-color: #F57C00;
 }
 
+.undo-button, .redo-button {
+  background-color: #2196F3 !important;
+}
+
+.undo-button:hover:not(:disabled), .redo-button:hover:not(:disabled) {
+  background-color: #1976D2 !important;
+}
+
+.history-info {
+  display: inline-block;
+  padding: 0 1rem;
+  font-weight: bold;
+  color: #666;
+}
+
 .error {
   color: #f44336;
   margin: 1rem 0;
