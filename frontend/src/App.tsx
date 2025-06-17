@@ -249,17 +249,34 @@ function App() {
 
       <div className="test-controls">
         <h3>基本回転 (現在の状態に追加適用)</h3>
-        <div className="test-buttons">
-          {basicMoves.map((move, index) => (
-            <button
-              key={index}
-              onClick={() => applyTestScramble(move.moves)}
-              disabled={isLoading}
-              className="test-button basic-move"
-            >
-              {move.name}
-            </button>
-          ))}
+        <div className="move-grid">
+          {/* 1行目: R, L, U, D, F, B */}
+          <div className="move-row">
+            <button onClick={() => applyTestScramble(["R"])} disabled={isLoading} className="test-button basic-move">R</button>
+            <button onClick={() => applyTestScramble(["L"])} disabled={isLoading} className="test-button basic-move">L</button>
+            <button onClick={() => applyTestScramble(["U"])} disabled={isLoading} className="test-button basic-move">U</button>
+            <button onClick={() => applyTestScramble(["D"])} disabled={isLoading} className="test-button basic-move">D</button>
+            <button onClick={() => applyTestScramble(["F"])} disabled={isLoading} className="test-button basic-move">F</button>
+            <button onClick={() => applyTestScramble(["B"])} disabled={isLoading} className="test-button basic-move">B</button>
+          </div>
+          {/* 2行目: R', L', U', D', F', B' */}
+          <div className="move-row">
+            <button onClick={() => applyTestScramble(["R'"])} disabled={isLoading} className="test-button basic-move">R'</button>
+            <button onClick={() => applyTestScramble(["L'"])} disabled={isLoading} className="test-button basic-move">L'</button>
+            <button onClick={() => applyTestScramble(["U'"])} disabled={isLoading} className="test-button basic-move">U'</button>
+            <button onClick={() => applyTestScramble(["D'"])} disabled={isLoading} className="test-button basic-move">D'</button>
+            <button onClick={() => applyTestScramble(["F'"])} disabled={isLoading} className="test-button basic-move">F'</button>
+            <button onClick={() => applyTestScramble(["B'"])} disabled={isLoading} className="test-button basic-move">B'</button>
+          </div>
+          {/* 3行目: R2, L2, U2, D2, F2, B2 */}
+          <div className="move-row">
+            <button onClick={() => applyTestScramble(["R2"])} disabled={isLoading} className="test-button basic-move">R2</button>
+            <button onClick={() => applyTestScramble(["L2"])} disabled={isLoading} className="test-button basic-move">L2</button>
+            <button onClick={() => applyTestScramble(["U2"])} disabled={isLoading} className="test-button basic-move">U2</button>
+            <button onClick={() => applyTestScramble(["D2"])} disabled={isLoading} className="test-button basic-move">D2</button>
+            <button onClick={() => applyTestScramble(["F2"])} disabled={isLoading} className="test-button basic-move">F2</button>
+            <button onClick={() => applyTestScramble(["B2"])} disabled={isLoading} className="test-button basic-move">B2</button>
+          </div>
         </div>
       </div>
 

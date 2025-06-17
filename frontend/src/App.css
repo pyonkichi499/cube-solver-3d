@@ -109,6 +109,28 @@ h1 {
   justify-content: center;
 }
 
+.move-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.move-row {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.move-grid .test-button {
+  width: 60px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+
 .test-button {
   border: none;
   color: white;
