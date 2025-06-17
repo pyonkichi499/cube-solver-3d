@@ -39,10 +39,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ### Backend
 ```bash
 cd backend
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
-pip install -r requirements.txt
-uvicorn main:app --reload --port 8000
+rye sync  # Install dependencies
+rye run uvicorn main:app --reload --port 8000
 ```
 
 ### Frontend
@@ -56,7 +54,7 @@ npm run build  # Production build
 ### Running Both
 ```bash
 # Terminal 1 - Backend
-cd backend && uvicorn main:app --reload
+cd backend && rye run uvicorn main:app --reload
 
 # Terminal 2 - Frontend
 cd frontend && npm run dev

@@ -38,10 +38,8 @@ Webベースの3Dルービックキューブソルバーとビジュアライゼ
 
 ```bash
 cd backend
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
-pip install -r requirements.txt
-uvicorn main:app --reload --port 8000
+rye sync  # 依存関係のインストール
+rye run uvicorn main:app --reload --port 8000
 ```
 
 ### フロントエンド
@@ -56,7 +54,7 @@ npm run dev  # http://localhost:5173
 
 ```bash
 # ターミナル1（バックエンド）
-cd backend && uvicorn main:app --reload
+cd backend && rye run uvicorn main:app --reload
 
 # ターミナル2（フロントエンド） 
 cd frontend && npm run dev
