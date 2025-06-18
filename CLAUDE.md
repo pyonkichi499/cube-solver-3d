@@ -8,13 +8,18 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Development Status
 
-**Current State**: Basic 3D visualization complete with mock functionality
+**Current State**: Full cube rotation logic implemented, API integration pending
 - ✅ Frontend: React + TypeScript + Three.js for 3D cube display
 - ✅ Backend: Python FastAPI with Kociemba solver (API ready)
 - ✅ 3D rendering with proper lighting and materials
-- 🚧 Mock scramble (random colors, not actual cube rotations)
+- ✅ Full cube rotation logic (all faces: R, L, U, D, F, B with prime and double moves)
+- ✅ Undo/Redo functionality
+- ✅ API client implementation with proxy configuration
+- ✅ Debug mode with sticker tracking
 - 🚧 Mock solve display (not connected to backend API)
-- ❌ Real cube rotation mathematics not implemented
+- 🚧 Mock scramble generation (not connected to backend API)
+- ❌ Rotation animations not implemented
+- ❌ Manual cube manipulation (click/drag to rotate faces)
 - ❌ Frontend-backend API integration not connected
 
 ## Key Architecture Decisions
