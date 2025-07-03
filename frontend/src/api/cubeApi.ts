@@ -52,7 +52,7 @@ const mockFunctions = {
   },
 
   // モック解法生成
-  generateMockSolution: (cubeState: string): SolveResponse => {
+  generateMockSolution: (_cubeState: string): SolveResponse => {
     // 簡単なモック解法（実際の解法ではありません）
     const mockSolution = ['R', 'U', 'R\'', 'U\'', 'R', 'U2', 'R\'', 'U'];
 
