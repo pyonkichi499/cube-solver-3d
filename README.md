@@ -35,24 +35,43 @@ Webベースの3Dルービックキューブソルバーとビジュアライゼ
 
 ## セットアップ
 
-### バックエンド
+### 🚀 簡単起動（Docker）
 
+```bash
+# ワンコマンドで両方起動
+docker-compose up --build
+
+# または簡単起動スクリプト
+./docker-start.sh
+```
+
+### 🌐 GitHub Pages公開
+
+フロントエンドのみをGitHub Pagesで公開:
+
+1. リポジトリの **Settings** → **Pages** → **Source**: GitHub Actions
+2. コードをプッシュ: `git push origin main`
+3. 自動デプロイ完了: `https://[ユーザー名].github.io/cube-solver-3d/`
+
+詳細は [`GITHUB_PAGES_DEPLOY.md`](GITHUB_PAGES_DEPLOY.md) を参照。
+
+### 🔧 手動起動
+
+**バックエンド**:
 ```bash
 cd backend
 rye sync  # 依存関係のインストール
 rye run uvicorn main:app --reload --port 8000
 ```
 
-### フロントエンド
-
+**フロントエンド**:
 ```bash
 cd frontend
 npm install
 npm run dev  # http://localhost:5173
 ```
 
-### 両方同時実行
-
+**両方同時実行**:
 ```bash
 # ターミナル1（バックエンド）
 cd backend && rye run uvicorn main:app --reload

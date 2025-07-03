@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './App.css';
 import { Cube3D } from './components/Cube3D';
 import { DebugPanel } from './components/DebugPanel';
 import { RotationTracker } from './components/RotationTracker';
 import * as CubeTypes from './types/cube';
-import { createSolvedCube, cubeStateToString, applyMoves, stringToCubeState } from './utils/cubeUtils';
+import { createSolvedCube, cubeStateToString, applyMoves } from './utils/cubeUtils';
 import { cubeApi } from './api/cubeApi';
 import { getSimplifiedMovesDisplay, getLastMoveGroup } from './utils/moveSimplifier';
 
@@ -16,7 +16,6 @@ import './utils/debugURotation';
 import './utils/debugFaceOrder';
 
 type CubeState = CubeTypes.CubeState;
-type Color = CubeTypes.Color;
 
 function App() {
   const [cubeState, setCubeState] = useState<CubeState>(createSolvedCube());
@@ -26,10 +25,20 @@ function App() {
   const [lastScramble, setLastScramble] = useState<string[]>([]);
   const [debugMode, setDebugMode] = useState(false);
   const [scrambleInput, setScrambleInput] = useState<string>('');
-  
+  const [apiAvailable, setApiAvailable] = useState<boolean | null>(null);
+
   // Undo/Redo用の履歴管理
   const [history, setHistory] = useState<CubeState[]>([createSolvedCube()]);
   const [historyIndex, setHistoryIndex] = useState(0);
+
+  // APIの状態をチェック
+  useEffect(() => {
+    const checkApiStatus = async () => {
+      const isAvailable = await cubeApi.isApiAvailable();
+      setApiAvailable(isAvailable);
+    };
+    checkApiStatus();
+  }, []);
 
   // 新しい状態を履歴に追加
   const addToHistory = (newState: CubeState) => {
@@ -47,7 +56,7 @@ function App() {
       const newIndex = historyIndex - 1;
       setHistoryIndex(newIndex);
       setCubeState(history[newIndex]);
-      
+
       // 最後の手順を削除
       if (lastScramble.length > 0) {
         setLastScramble(lastScramble.slice(0, -1));
@@ -68,39 +77,19 @@ function App() {
     try {
       setIsLoading(true);
       setError(null);
-      
-      // Generate a random scramble using actual cube rotations
-      const generateScramble = (): string[] => {
-        const faces = ['R', 'U', 'F', 'L', 'D', 'B'];
-        const modifiers = ['', "'", '2'];
-        const scramble: string[] = [];
-        let lastFace = '';
-        
-        for (let i = 0; i < 20; i++) {
-          // Avoid same face twice in a row
-          let face;
-          do {
-            face = faces[Math.floor(Math.random() * faces.length)];
-          } while (face === lastFace);
-          
-          const modifier = modifiers[Math.floor(Math.random() * modifiers.length)];
-          scramble.push(face + modifier);
-          lastFace = face;
-        }
-        
-        return scramble;
-      };
-      
-      const scrambleMoves = generateScramble();
-      console.log('Scramble:', scrambleMoves.join(' '));
-      
+
+      // Get scramble from backend API
+      const response = await cubeApi.getScramble(20);
+      const scrambleMoves = response.scramble;
+      console.log('Scramble from API:', scrambleMoves.join(' '));
+
       // Apply scramble moves to solved cube
       const scrambledState = applyMoves(createSolvedCube(), scrambleMoves);
       addToHistory(scrambledState);
       setLastScramble(scrambleMoves);
       setSolution([]); // Clear solution
     } catch (err) {
-      setError('Failed to generate scramble');
+      // エラーは既にモック機能で処理されているため、ここでは何もしない
       console.error(err);
     } finally {
       setIsLoading(false);
@@ -111,15 +100,22 @@ function App() {
     try {
       setIsLoading(true);
       setError(null);
-      
-      // Mock solution while backend is not running
-      setTimeout(() => {
-        setSolution(["R", "U", "R'", "U'", "R", "U", "R'", "U'"]);
-        setIsLoading(false);
-      }, 1000);
+
+      // Convert cube state to API format
+      const cubeStateString = cubeStateToString(cubeState);
+      console.log('Sending cube state to API:', cubeStateString);
+
+      // Call solve API
+      const response = await cubeApi.solve(cubeStateString);
+      console.log('Solution from API:', response.solution.join(' '));
+      console.log('Move count:', response.move_count);
+      console.log('Solver used:', response.solver_used);
+
+      setSolution(response.solution);
     } catch (err) {
-      setError('Failed to solve cube');
+      // エラーは既にモック機能で処理されているため、ここでは何もしない
       console.error(err);
+    } finally {
       setIsLoading(false);
     }
   };
@@ -139,12 +135,12 @@ function App() {
     try {
       setIsLoading(true);
       setError(null);
-      
+
       console.log('Applying test moves:', moves.join(' '));
       // 現在の状態に手順を追加適用
       const newState = applyMoves(cubeState, moves);
       addToHistory(newState);
-      
+
       // 手順を追記
       const combinedMoves = [...lastScramble, ...moves];
       setLastScramble(combinedMoves);
@@ -157,28 +153,6 @@ function App() {
     }
   };
 
-  // 基本回転
-  const basicMoves = [
-    { name: "R", moves: ["R"] },
-    { name: "R'", moves: ["R'"] },
-    { name: "R2", moves: ["R2"] },
-    { name: "U", moves: ["U"] },
-    { name: "U'", moves: ["U'"] },
-    { name: "U2", moves: ["U2"] },
-    { name: "F", moves: ["F"] },
-    { name: "F'", moves: ["F'"] },
-    { name: "F2", moves: ["F2"] },
-    { name: "L", moves: ["L"] },
-    { name: "L'", moves: ["L'"] },
-    { name: "L2", moves: ["L2"] },
-    { name: "D", moves: ["D"] },
-    { name: "D'", moves: ["D'"] },
-    { name: "D2", moves: ["D2"] },
-    { name: "B", moves: ["B"] },
-    { name: "B'", moves: ["B'"] },
-    { name: "B2", moves: ["B2"] }
-  ];
-
   // 複合手順
   const complexMoves = [
     {
@@ -186,7 +160,7 @@ function App() {
       moves: ["R", "U", "R'", "U'"]
     },
     {
-      name: "Sledgehammer", 
+      name: "Sledgehammer",
       moves: ["R'", "F", "R", "F'"]
     },
     {
@@ -203,27 +177,27 @@ function App() {
   const applyScrambleString = () => {
     try {
       setError(null);
-      
+
       // 入力を解析
       const moves = scrambleInput.trim().split(/\s+/).filter(move => move.length > 0);
-      
+
       if (moves.length === 0) {
         setError('スクランブルを入力してください');
         return;
       }
-      
+
       // 有効な手順かチェック
-      const validMoves = ["R", "R'", "R2", "U", "U'", "U2", "F", "F'", "F2", 
-                         "D", "D'", "D2", "L", "L'", "L2", "B", "B'", "B2"];
+      const validMoves = ["R", "R'", "R2", "U", "U'", "U2", "F", "F'", "F2",
+        "D", "D'", "D2", "L", "L'", "L2", "B", "B'", "B2"];
       const invalidMoves = moves.filter(move => !validMoves.includes(move));
-      
+
       if (invalidMoves.length > 0) {
         setError(`無効な手順: ${invalidMoves.join(', ')}`);
         return;
       }
-      
+
       console.log('Applying scramble:', moves.join(' '));
-      
+
       // 完成状態から適用
       const scrambledState = applyMoves(createSolvedCube(), moves);
       setHistory([createSolvedCube(), scrambledState]);
@@ -241,7 +215,18 @@ function App() {
   return (
     <div className="App">
       <h1>3D Cube Solver</h1>
-      
+
+      {/* API状態バナー */}
+      {apiAvailable !== null && (
+        <div className={`api-status ${apiAvailable ? 'api-available' : 'api-unavailable'}`}>
+          {apiAvailable ? (
+            <span>🟢 バックエンドAPI接続済み - 完全機能利用可能</span>
+          ) : (
+            <span>🟡 フロントエンドのみモード - 基本機能のみ利用可能（スクランブル・解法はモック機能）</span>
+          )}
+        </div>
+      )}
+
       <div className="cube-container">
         <Cube3D cubeState={cubeState} debugMode={debugMode} />
       </div>
@@ -262,8 +247,8 @@ function App() {
       </div>
 
       <div className="controls">
-        <button 
-          onClick={handleUndo} 
+        <button
+          onClick={handleUndo}
           disabled={isLoading || historyIndex === 0}
           className="undo-button"
         >
@@ -272,8 +257,8 @@ function App() {
         <span className="history-info">
           {historyIndex + 1} / {history.length}
         </span>
-        <button 
-          onClick={handleRedo} 
+        <button
+          onClick={handleRedo}
           disabled={isLoading || historyIndex === history.length - 1}
           className="redo-button"
         >
@@ -367,24 +352,24 @@ function App() {
       {lastScramble.length > 0 && (() => {
         const { original, simplified, count } = getSimplifiedMovesDisplay(lastScramble);
         const lastGroup = getLastMoveGroup(lastScramble);
-        
+
         return (
           <div className="scramble-info">
             <h3>適用済み手順:</h3>
-            
+
             {/* 統合表示 */}
             <div className="moves-display">
               <div className="simplified-moves">
                 <strong>統合表示 ({count} moves):</strong>
                 <p className="scramble-sequence simplified">{simplified || '(なし)'}</p>
               </div>
-              
+
               {/* 詳細表示 */}
               <details className="detailed-moves">
                 <summary>詳細表示 ({lastScramble.length} moves)</summary>
                 <div className="original-moves">
                   <p className="scramble-sequence original">{original}</p>
-                  
+
                   {lastGroup.length > 1 && (
                     <div className="last-group-info">
                       <small>
@@ -408,7 +393,7 @@ function App() {
       )}
 
       {isLoading && <div className="loading">Loading...</div>}
-      
+
       {debugMode && (
         <>
           <RotationTracker cubeState={cubeState} moves={lastScramble} />

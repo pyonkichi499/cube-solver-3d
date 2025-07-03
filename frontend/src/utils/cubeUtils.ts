@@ -24,18 +24,52 @@ export const createSolvedCube = (): CubeState => {
 };
 
 // Convert cube state to API format (string of face letters)
+// Backend expects order: U(9) R(9) F(9) D(9) L(9) B(9)
+// Frontend stores in order: U(0-8) F(9-17) L(18-26) B(27-35) R(36-44) D(45-53)
 export const cubeStateToString = (cubeState: CubeState): string => {
-  return cubeState.stickers.map(color => {
-    const faceMap: Record<Color, string> = {
-      'white': 'U',
-      'yellow': 'D',
-      'orange': 'L',
-      'red': 'R',
-      'green': 'F',
-      'blue': 'B'
-    };
-    return faceMap[color];
-  }).join('');
+  const colorToFace: Record<Color, string> = {
+    'white': 'U',
+    'yellow': 'D',
+    'orange': 'L',
+    'red': 'R',
+    'green': 'F',
+    'blue': 'B'
+  };
+  
+  // Reorder stickers to match backend expected format
+  const reorderedStickers: Color[] = [];
+  
+  // U face (indices 0-8)
+  for (let i = 0; i < 9; i++) {
+    reorderedStickers.push(cubeState.stickers[i]);
+  }
+  
+  // R face (indices 36-44)
+  for (let i = 36; i < 45; i++) {
+    reorderedStickers.push(cubeState.stickers[i]);
+  }
+  
+  // F face (indices 9-17)
+  for (let i = 9; i < 18; i++) {
+    reorderedStickers.push(cubeState.stickers[i]);
+  }
+  
+  // D face (indices 45-53)
+  for (let i = 45; i < 54; i++) {
+    reorderedStickers.push(cubeState.stickers[i]);
+  }
+  
+  // L face (indices 18-26)
+  for (let i = 18; i < 27; i++) {
+    reorderedStickers.push(cubeState.stickers[i]);
+  }
+  
+  // B face (indices 27-35)
+  for (let i = 27; i < 36; i++) {
+    reorderedStickers.push(cubeState.stickers[i]);
+  }
+  
+  return reorderedStickers.map(color => colorToFace[color]).join('');
 };
 
 // Parse API format string to cube state
