@@ -2,9 +2,8 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [main, develop]
-  pull_request:
-    branches: [main]
+    branches: [gh-pages-source] # ソースコード用ブランチ
+  workflow_dispatch: # 手動実行も可能
 
 jobs:
   build-and-deploy:
@@ -33,7 +32,7 @@ jobs:
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
-        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./frontend/dist
+          publish_branch: gh-pages # GitHub Pages が読み込むブランチ
