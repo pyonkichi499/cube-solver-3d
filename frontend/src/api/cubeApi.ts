@@ -30,8 +30,8 @@ export interface ScrambleResponse {
   cube_size: string;
 }
 
-// モック機能（バックエンドが利用できない場合のフォールバック）
-const mockFunctions = {
+// モック機能とフォールバック用の関数
+export const mockFunctions = {
   // モックスクランブル生成
   generateMockScramble: (length: number = 20): ScrambleResponse => {
     const moves = ['R', 'L', 'U', 'D', 'F', 'B'];
@@ -77,51 +77,32 @@ const mockFunctions = {
 export const cubeApi = {
   // Solve a cube
   solve: async (cubeState: string, solverType: string = 'kociemba'): Promise<SolveResponse> => {
-    try {
-      const response = await api.post<SolveResponse>('/solve', {
-        cube_state: {
-          size: '3x3',
-          state: cubeState,
-        },
-        solver_type: solverType,
-      });
-      return response.data;
-    } catch (error) {
-      console.log('バックエンドが利用できません。モック解法を返します。');
-      return mockFunctions.generateMockSolution(cubeState);
-    }
+    const response = await api.post<SolveResponse>('/solve', {
+      cube_state: {
+        size: '3x3',
+        state: cubeState,
+      },
+      solver_type: solverType,
+    });
+    return response.data;
   },
 
   // Generate a scramble
   getScramble: async (length: number = 20): Promise<ScrambleResponse> => {
-    try {
-      const response = await api.get<ScrambleResponse>(`/scramble/3x3?length=${length}`);
-      return response.data;
-    } catch (error) {
-      console.log('バックエンドが利用できません。モックスクランブルを返します。');
-      return mockFunctions.generateMockScramble(length);
-    }
+    const response = await api.get<ScrambleResponse>(`/scramble/3x3?length=${length}`);
+    return response.data;
   },
 
   // Get available solvers
   getSolvers: async () => {
-    try {
-      const response = await api.get('/solvers');
-      return response.data;
-    } catch (error) {
-      console.log('バックエンドが利用できません。');
-      return { solvers: ['mock-solver'] };
-    }
+    const response = await api.get('/solvers');
+    return response.data;
   },
 
   // Health check
   healthCheck: async () => {
-    try {
-      const response = await api.get('/health');
-      return response.data;
-    } catch (error) {
-      return { status: 'フロントエンドのみモード', backend_available: false };
-    }
+    const response = await api.get('/health');
+    return response.data;
   },
 
   // API利用可能性をチェック

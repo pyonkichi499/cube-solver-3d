@@ -5,7 +5,7 @@ import { DebugPanel } from './components/DebugPanel';
 import { RotationTracker } from './components/RotationTracker';
 import * as CubeTypes from './types/cube';
 import { createSolvedCube, cubeStateToString, applyMoves } from './utils/cubeUtils';
-import { cubeApi } from './api/cubeApi';
+import { cubeApi, mockFunctions } from './api/cubeApi';
 import { getSimplifiedMovesDisplay, getLastMoveGroup } from './utils/moveSimplifier';
 
 // テスト関数を読み込み（ブラウザコンソールで使用可能にする）
@@ -78,10 +78,25 @@ function App() {
       setIsLoading(true);
       setError(null);
 
-      // Get scramble from backend API
-      const response = await cubeApi.getScramble(20);
+      let response;
+      if (apiAvailable) {
+        // Try to get scramble from backend API
+        try {
+          response = await cubeApi.getScramble(20);
+          console.log('Scramble from API:', response.scramble.join(' '));
+        } catch (apiError) {
+          console.error('API error:', apiError);
+          // Fall back to mock scramble
+          response = mockFunctions.generateMockScramble(20);
+          console.log('Using mock scramble:', response.scramble.join(' '));
+        }
+      } else {
+        // Use mock scramble if API is not available
+        response = mockFunctions.generateMockScramble(20);
+        console.log('Using mock scramble (API unavailable):', response.scramble.join(' '));
+      }
+
       const scrambleMoves = response.scramble;
-      console.log('Scramble from API:', scrambleMoves.join(' '));
 
       // Apply scramble moves to solved cube
       const scrambledState = applyMoves(createSolvedCube(), scrambleMoves);
@@ -89,8 +104,8 @@ function App() {
       setLastScramble(scrambleMoves);
       setSolution([]); // Clear solution
     } catch (err) {
-      // エラーは既にモック機能で処理されているため、ここでは何もしない
-      console.error(err);
+      setError('スクランブルの生成に失敗しました');
+      console.error('Scramble error:', err);
     } finally {
       setIsLoading(false);
     }
@@ -105,16 +120,30 @@ function App() {
       const cubeStateString = cubeStateToString(cubeState);
       console.log('Sending cube state to API:', cubeStateString);
 
-      // Call solve API
-      const response = await cubeApi.solve(cubeStateString);
-      console.log('Solution from API:', response.solution.join(' '));
-      console.log('Move count:', response.move_count);
-      console.log('Solver used:', response.solver_used);
+      let response;
+      if (apiAvailable) {
+        // Try to call solve API
+        try {
+          response = await cubeApi.solve(cubeStateString);
+          console.log('Solution from API:', response.solution.join(' '));
+          console.log('Move count:', response.move_count);
+          console.log('Solver used:', response.solver_used);
+        } catch (apiError) {
+          console.error('API error:', apiError);
+          // Fall back to mock solution
+          response = mockFunctions.generateMockSolution(cubeStateString);
+          console.log('Using mock solution:', response.solution.join(' '));
+        }
+      } else {
+        // Use mock solution if API is not available
+        response = mockFunctions.generateMockSolution(cubeStateString);
+        console.log('Using mock solution (API unavailable):', response.solution.join(' '));
+      }
 
       setSolution(response.solution);
     } catch (err) {
-      // エラーは既にモック機能で処理されているため、ここでは何もしない
-      console.error(err);
+      setError('解法の算出に失敗しました');
+      console.error('Solve error:', err);
     } finally {
       setIsLoading(false);
     }
