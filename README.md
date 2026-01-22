@@ -51,7 +51,7 @@ docker-compose up --build
 
 1. リポジトリの **Settings** → **Pages** → **Source**: GitHub Actions
 2. コードをプッシュ: `git push origin main`
-3. 自動デプロイ完了: `https://[ユーザー名].github.io/cube-solver-3d/`
+3. 自動デプロイ完了: `https://pyonkichi499.github.io/cube-solver-3d/`
 
 詳細は [`GITHUB_PAGES_DEPLOY.md`](GITHUB_PAGES_DEPLOY.md) を参照。
 
