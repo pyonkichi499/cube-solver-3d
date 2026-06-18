@@ -16,7 +16,18 @@
       "Bash(npm run build:*)",
       "Bash(find:*)",
       "Bash(npm run type-check:*)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Bash(git -C /Users/terauchi.hiroshi/work/practice/private_github/cube-solver-3d log --oneline --graph --decorate -30)",
+      "Bash(wc:*)",
+      "Bash(git -C /Users/terauchi.hiroshi/work/practice/private_github/cube-solver-3d branch:*)",
+      "Bash(gh pr list:*)",
+      "Bash(gh issue list:*)",
+      "Bash(git -C /Users/terauchi.hiroshi/work/practice/private_github/cube-solver-3d diff main..develop)",
+      "Bash(gh api:*)",
+      "Bash(git -C /Users/terauchi.hiroshi/work/practice/private_github/cube-solver-3d diff --stat main..develop)",
+      "Bash(gh issue view:*)",
+      "Bash(git -C /Users/terauchi.hiroshi/work/practice/private_github/cube-solver-3d log --format=\"%h %ad %an - %s\" --date=short -30)",
+      "Bash(npx vitest run:*)"
     ],
     "deny": []
   }
