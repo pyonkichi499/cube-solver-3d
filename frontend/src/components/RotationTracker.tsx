@@ -1,28 +1,19 @@
 import React from 'react';
-import * as CubeTypes from '../types/cube';
+import type { CubeState, Color } from '../types/cube';
+import { COLOR_EMOJI } from '../types/cube';
 
 interface RotationTrackerProps {
-  cubeState: CubeTypes.CubeState;
+  cubeState: CubeState;
   moves: string[];
 }
 
 export const RotationTracker: React.FC<RotationTrackerProps> = ({ cubeState, moves }) => {
-  // 重要なエッジピースの位置
   const edges = [
     { name: 'UF', positions: [7, 19], labels: ['U7', 'F1'] },
     { name: 'UR', positions: [5, 10], labels: ['U5', 'R1'] },
     { name: 'UB', positions: [1, 46], labels: ['U1', 'B1'] },
     { name: 'UL', positions: [3, 37], labels: ['U3', 'L1'] }
   ];
-  
-  const colorEmoji = {
-    white: '⬜',
-    yellow: '🟨', 
-    orange: '🟧',
-    red: '🟥',
-    green: '🟩',
-    blue: '🟦'
-  };
   
   return (
     <div style={{
@@ -57,12 +48,12 @@ export const RotationTracker: React.FC<RotationTrackerProps> = ({ cubeState, mov
             <div style={{ display: 'flex', gap: '20px', fontSize: '14px' }}>
               <div>
                 <strong>{edge.labels[0]}:</strong>{' '}
-                {colorEmoji[cubeState.stickers[edge.positions[0]] as keyof typeof colorEmoji]}{' '}
+                {COLOR_EMOJI[cubeState.stickers[edge.positions[0]] as Color]}{' '}
                 ({cubeState.stickers[edge.positions[0]]})
               </div>
               <div>
                 <strong>{edge.labels[1]}:</strong>{' '}
-                {colorEmoji[cubeState.stickers[edge.positions[1]] as keyof typeof colorEmoji]}{' '}
+                {COLOR_EMOJI[cubeState.stickers[edge.positions[1]] as Color]}{' '}
                 ({cubeState.stickers[edge.positions[1]]})
               </div>
             </div>

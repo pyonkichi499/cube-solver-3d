@@ -151,13 +151,18 @@ export const visualizeCubeState = (stickers: string[]): string => {
   lines.push('      D D D');
   lines.push('      D D D');
 
-  // 実際の色を置換
-  const result = lines.join('\n').replace(/U/g, stickers.slice(0, 9).join(' ').replace(/ /g, ''))
-    .replace(/R/g, stickers.slice(9, 18).join(' ').replace(/ /g, ''))
-    .replace(/F/g, stickers.slice(18, 27).join(' ').replace(/ /g, ''))
-    .replace(/D/g, stickers.slice(27, 36).join(' ').replace(/ /g, ''))
-    .replace(/L/g, stickers.slice(36, 45).join(' ').replace(/ /g, ''))
-    .replace(/B/g, stickers.slice(45, 54).join(' ').replace(/ /g, ''));
+  // 実際の色を置換 (FACE_INDICESに基づくUFLBRD順)
+  const faceSlice = (face: keyof typeof FACE_INDICES): string => {
+    const start = FACE_INDICES[face] * 9;
+    return stickers.slice(start, start + 9).join(' ').replace(/ /g, '');
+  };
+  const result = lines.join('\n')
+    .replace(/U/g, faceSlice('U'))
+    .replace(/F/g, faceSlice('F'))
+    .replace(/L/g, faceSlice('L'))
+    .replace(/B/g, faceSlice('B'))
+    .replace(/R/g, faceSlice('R'))
+    .replace(/D/g, faceSlice('D'));
 
   return result;
 };

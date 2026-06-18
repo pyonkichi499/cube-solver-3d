@@ -72,9 +72,27 @@ export const cubeStateToString = (cubeState: CubeState): string => {
   return reorderedStickers.map(color => colorToFace[color]).join('');
 };
 
-// Parse API format string to cube state
+// Parse API format string (URFDLB order) to cube state (UFLBRD order)
+// This is the inverse of cubeStateToString()
 export const stringToCubeState = (stateString: string): CubeState => {
-  const stickers: Color[] = stateString.split('').map(face => CubeTypes.faceToColor(face));
+  if (stateString.length !== 54) {
+    throw new Error(`Invalid cube state string length: ${stateString.length} (expected 54)`);
+  }
+
+  const apiStickers: Color[] = stateString.split('').map(face => CubeTypes.faceToColor(face));
+
+  // Reorder from API format (URFDLB) to frontend format (UFLBRD)
+  // API:      U(0-8)  R(9-17)  F(18-26) D(27-35) L(36-44) B(45-53)
+  // Frontend: U(0-8)  F(9-17)  L(18-26) B(27-35) R(36-44) D(45-53)
+  const stickers: Color[] = [
+    ...apiStickers.slice(0, 9),    // U <- API U (0-8)
+    ...apiStickers.slice(18, 27),  // F <- API F (18-26)
+    ...apiStickers.slice(36, 45),  // L <- API L (36-44)
+    ...apiStickers.slice(45, 54),  // B <- API B (45-53)
+    ...apiStickers.slice(9, 18),   // R <- API R (9-17)
+    ...apiStickers.slice(27, 36),  // D <- API D (27-35)
+  ];
+
   const stickerIds = Array.from({ length: stickers.length }, (_, i) => i);
   return { stickers, stickerIds };
 };
@@ -83,11 +101,11 @@ export const stringToCubeState = (stateString: string): CubeState => {
 export const applyMove = (cubeState: CubeState, move: string): CubeState => {
   const moveFunction = getMoveFunction(move);
   if (!moveFunction) {
-    console.warn(`Unknown move: ${move}`);
+    if (import.meta.env.DEV) console.warn(`Unknown move: ${move}`);
     return cubeState;
   }
   
-  console.log(`Applying move: ${move}`);
+  if (import.meta.env.DEV) console.log(`Applying move: ${move}`);
   return moveFunction(cubeState);
 };
 

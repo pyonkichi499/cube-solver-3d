@@ -1,29 +1,13 @@
 import React from 'react';
-import * as CubeTypes from '../types/cube';
+import type { CubeState, Color, Face } from '../types/cube';
+import { COLOR_EMOJI, FACE_NAMES } from '../types/cube';
 
 interface DebugPanelProps {
-  cubeState: CubeTypes.CubeState;
+  cubeState: CubeState;
 }
 
 export const DebugPanel: React.FC<DebugPanelProps> = ({ cubeState }) => {
-  const faces = ['U', 'F', 'L', 'B', 'R', 'D'] as const;
-  const faceNames = {
-    U: '上面 (U)',
-    R: '右面 (R)',
-    F: '前面 (F)',
-    D: '下面 (D)',
-    L: '左面 (L)',
-    B: '背面 (B)'
-  };
-  
-  const colorEmoji = {
-    white: '⬜',
-    yellow: '🟨',
-    orange: '🟧',
-    red: '🟥',
-    green: '🟩',
-    blue: '🟦'
-  };
+  const faces: readonly Face[] = ['U', 'F', 'L', 'B', 'R', 'D'] as const;
   
   const renderFace = (face: typeof faces[number], startIndex: number) => {
     const faceStickers = [];
@@ -47,7 +31,7 @@ export const DebugPanel: React.FC<DebugPanelProps> = ({ cubeState }) => {
             paddingTop: '4px'
           }}
         >
-          <div>{colorEmoji[color as keyof typeof colorEmoji] || color.charAt(0).toUpperCase()}</div>
+          <div>{COLOR_EMOJI[color as Color] || color.charAt(0).toUpperCase()}</div>
           <div style={{ fontSize: '10px', color: '#666' }}>{stickerId}</div>
         </div>
       );
@@ -55,7 +39,7 @@ export const DebugPanel: React.FC<DebugPanelProps> = ({ cubeState }) => {
     
     return (
       <div style={{ marginBottom: '20px' }}>
-        <h4>{faceNames[face]}</h4>
+        <h4>{FACE_NAMES[face]}</h4>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 44px)', gap: '0' }}>
           {faceStickers}
         </div>

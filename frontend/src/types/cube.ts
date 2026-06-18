@@ -56,3 +56,33 @@ export const colorToFace = (color: Color): Face => {
   };
   return mapping[color];
 };
+
+// Color to hex mapping for 3D rendering
+export const COLOR_TO_HEX: Record<Color, string> = {
+  'white': '#FFFFFF',
+  'yellow': '#FFD500',
+  'orange': '#FF6B00',
+  'red': '#C41E3A',
+  'green': '#009E60',
+  'blue': '#0051BA',
+};
+
+// Color to emoji mapping for debug panels
+export const COLOR_EMOJI: Record<Color, string> = {
+  'white': '⬜',
+  'yellow': '🟨',
+  'orange': '🟧',
+  'red': '🟥',
+  'green': '🟩',
+  'blue': '🟦',
+};
+
+// Face display names
+export const FACE_NAMES: Record<Face, string> = {
+  'U': 'Up (白)',
+  'D': 'Down (黄)',
+  'F': 'Front (緑)',
+  'B': 'Back (青)',
+  'L': 'Left (橙)',
+  'R': 'Right (赤)',
+};
