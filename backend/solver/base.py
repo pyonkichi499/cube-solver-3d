@@ -1,6 +1,6 @@
 """Base solver interface for cube solving algorithms."""
 from abc import ABC, abstractmethod
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 
 
 class CubeSolver(ABC):
@@ -33,6 +33,23 @@ class CubeSolver(ABC):
         """
         pass
     
+    def validate_and_solve(self, cube_state: str) -> Optional[List[str]]:
+        """
+        Validate and solve in one pass.
+
+        Default implementation calls validate_state() then solve().
+        Subclasses can override for optimization (e.g., to avoid redundant computation).
+
+        Returns:
+            List of moves if valid and solvable, None otherwise
+        """
+        if not self.validate_state(cube_state):
+            return None
+        try:
+            return self.solve(cube_state)
+        except Exception:
+            return None
+
     def get_info(self) -> Dict[str, Any]:
         """
         Get information about the solver.

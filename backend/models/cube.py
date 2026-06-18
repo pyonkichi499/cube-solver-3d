@@ -1,5 +1,5 @@
 """Cube-related data models."""
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator, ValidationInfo
 from typing import List, Optional, Literal
 from enum import Enum
 
@@ -19,9 +19,10 @@ class CubeState(BaseModel):
     size: CubeSize = Field(default=CubeSize.SIZE_3X3, description="Size of the cube")
     state: str = Field(..., description="String representation of the cube state")
     
-    @validator('state')
-    def validate_state_length(cls, v, values):
-        size = values.get('size', CubeSize.SIZE_3X3)
+    @field_validator('state')
+    @classmethod
+    def validate_state_length(cls, v: str, info: ValidationInfo) -> str:
+        size = info.data.get('size', CubeSize.SIZE_3X3)
         expected_length = {
             CubeSize.SIZE_2X2: 24,  # 6 faces * 4 stickers
             CubeSize.SIZE_3X3: 54,  # 6 faces * 9 stickers
