@@ -14,37 +14,18 @@ annotated-types==0.7.0
     # via pydantic
 anyio==4.9.0
     # via starlette
-argparse==1.4.0
-    # via cors
-certifi==2025.6.15
-    # via requests
 cffi==1.17.1
     # via kociemba
-charset-normalizer==3.4.2
-    # via requests
 click==8.2.1
     # via uvicorn
-colorama==0.4.6
-    # via cors
-cors==1.0.1
-    # via cube-solver-3d
 fastapi==0.109.0
     # via cube-solver-3d
-filelock==3.18.0
-    # via tldextract
 future==1.0.0
-    # via cors
     # via kociemba
-gevent==25.5.1
-    # via cors
-greenlet==3.2.3
-    # via gevent
 h11==0.16.0
     # via uvicorn
 idna==3.10
     # via anyio
-    # via requests
-    # via tldextract
 kociemba==1.2.1
     # via cube-solver-3d
 numpy==1.26.3
@@ -56,35 +37,16 @@ pydantic==2.5.3
     # via fastapi
 pydantic-core==2.14.6
     # via pydantic
-pysocks==1.7.1
-    # via cors
-python-multipart==0.0.6
+python-multipart==0.0.22
     # via cube-solver-3d
-requests==2.32.4
-    # via cors
-    # via requests-file
-    # via tldextract
-requests-file==2.1.0
-    # via tldextract
-setuptools==80.9.0
-    # via zope-event
-    # via zope-interface
 sniffio==1.3.1
     # via anyio
 starlette==0.35.1
     # via fastapi
-tldextract==5.3.0
-    # via cors
 typing-extensions==4.14.0
     # via anyio
     # via fastapi
     # via pydantic
     # via pydantic-core
-urllib3==2.4.0
-    # via requests
 uvicorn==0.27.0
     # via cube-solver-3d
-zope-event==5.0
-    # via gevent
-zope-interface==7.2
-    # via gevent
