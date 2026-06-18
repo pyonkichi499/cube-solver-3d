@@ -21,8 +21,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - ✅ Debug mode with sticker tracking
 - ✅ API health check and status display
 - ✅ Error handling and loading states
-- ❌ Rotation animations not implemented
 - ❌ Manual cube manipulation (click/drag to rotate faces)
+- ❌ Rotation animations (low priority - moved to long-term plan)
+- ❌ Unit tests for frontend and backend (high priority)
 
 ## Key Architecture Decisions
 
@@ -56,6 +57,17 @@ cd frontend
 npm install
 npm run dev  # Development server on http://localhost:5173
 npm run build  # Production build
+```
+
+### Tests
+```bash
+# Backend tests
+cd backend
+rye run pytest tests/ -v
+
+# Frontend tests
+cd frontend
+npm run test
 ```
 
 ### Running Both
